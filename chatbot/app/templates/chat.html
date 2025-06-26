@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background-color: #ff69b4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .message {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+        
+        .bot-message {
+            background-color: #f1f1f1;
+            color: #333;
+            align-self: flex-start;
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .send-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .send-button:hover {
+            background-color: #ff1493;
+        }
+        
+        .send-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #999;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .status-indicator {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .status-online {
+            color: #28a745;
+        }
+        
+        .status-offline {
+            color: #dc3545;
+        }
+        
+        .chat-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .option-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .option-button:hover {
+            background-color: #ff1493;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .option-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .option-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .welcome-message {
+            margin-bottom: 0;
+        }
+        
+        .reset-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+        }
+        
+        .reset-button:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Booking Form Styles */
+        .booking-form-container {
+            display: none;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px solid #ff69b4;
+        }
+        
+        .booking-form-container.show {
+            display: block;
+        }
+        
+        .form-title {
+            color: #ff69b4;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #ff69b4;
+            box-shadow: 0 0 5px rgba(255, 105, 180, 0.3);
+        }
+        
+        .form-textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .service-option {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        
+        .service-price {
+            color: #ff69b4;
+            font-weight: bold;
+        }
+        
+        .service-duration {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .submit-button {
+            flex: 1;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-button:hover {
+            background-color: #ff1493;
+        }
+        
+        .submit-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .cancel-button {
+            flex: 1;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .cancel-button:hover {
+            background-color: #5a6268;
+        }
+        
+        .form-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+        }
+        
+        .date-info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>💅 {{ header_title }}</h2>
+            <p>{{ header_subtitle }}</p>
+            <div class="status-indicator" id="statusIndicator">
+                <span id="statusText">Đang kết nối...</span>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="welcome-message">
+                    {{ welcome_message | safe }}
+                </div>
+                <div class="chat-options" id="chatOptions">
+                    <button class="option-button" onclick="selectOption('Tôi muốn tư vấn dịch vụ')">
+                        💅 Tư vấn dịch vụ
+                    </button>
+                    <button class="option-button" onclick="showBookingForm()">
+                        📅 Đặt lịch làm nail
+                    </button>
+                    <button class="option-button" onclick="selectOption('Tôi muốn kiểm tra lịch trống')">
+                        🔍 Kiểm tra lịch trống
+                    </button>
+                    <button class="option-button" onclick="selectOption('Tôi muốn hủy lịch hẹn')">
+                        ❌ Hủy lịch hẹn
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Form -->
+        <div class="booking-form-container" id="bookingForm">
+            <div class="form-title">📅 Đặt lịch làm nail</div>
+            <form id="appointmentForm">
+                <div class="form-group">
+                    <label class="form-label" for="customerName">Họ và tên *</label>
+                    <input type="text" id="customerName" class="form-input" required 
+                           placeholder="Nhập họ và tên của bạn">
+                    <div class="form-error" id="nameError">Vui lòng nhập họ và tên</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="customerPhone">Số điện thoại *</label>
+                    <input type="tel" id="customerPhone" class="form-input" required 
+                           placeholder="0901234567" pattern="[0-9]{10,11}">
+                    <div class="form-error" id="phoneError">Vui lòng nhập số điện thoại hợp lệ (10-11 số)</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="customerEmail">Email (tùy chọn)</label>
+                    <input type="email" id="customerEmail" class="form-input" 
+                           placeholder="example@email.com">
+                    <div class="form-error" id="emailError">Vui lòng nhập email hợp lệ</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="serviceSelect">Chọn dịch vụ *</label>
+                    <select id="serviceSelect" class="form-select" required>
+                        <option value="">-- Chọn dịch vụ --</option>
+                        <option value="1" data-price="200000" data-duration="60">
+                            Làm móng gel - 200,000 VND (60 phút)
+                        </option>
+                        <option value="2" data-price="350000" data-duration="90">
+                            Làm móng gel kèm vẽ - 350,000 VND (90 phút)
+                        </option>
+                        <option value="3" data-price="100000" data-duration="30">
+                            Sơn móng thường - 100,000 VND (30 phút)
+                        </option>
+                        <option value="4" data-price="50000" data-duration="20">
+                            Cắt và dũa móng - 50,000 VND (20 phút)
+                        </option>
+                        <option value="5" data-price="500000" data-duration="120">
+                            Làm móng đính đá - 500,000 VND (120 phút)
+                        </option>
+                        <option value="6" data-price="400000" data-duration="90">
+                            Tẩy và làm lại móng - 400,000 VND (90 phút)
+                        </option>
+                    </select>
+                    <div class="form-error" id="serviceError">Vui lòng chọn dịch vụ</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="appointmentDate">Ngày hẹn *</label>
+                    <input type="date" id="appointmentDate" class="form-input" required 
+                           min="" onchange="loadTimeSlots()">
+                    <div class="form-error" id="dateError">Vui lòng chọn ngày hẹn</div>
+                    <div class="date-info" id="dateInfo" style="display: none;">
+                        💡 Tip: Chúng tôi mở cửa từ 9:00 - 18:00 hàng ngày
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="timeSlotSelect">Giờ hẹn *</label>
+                    <select id="timeSlotSelect" class="form-select" required disabled>
+                        <option value="">-- Chọn ngày trước --</option>
+                    </select>
+                    <div class="form-loading" id="timeSlotsLoading">
+                        🔄 Đang tải giờ trống...
+                    </div>
+                    <div class="form-error" id="timeError">Vui lòng chọn giờ hẹn</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="appointmentNotes">Ghi chú thêm (tùy chọn)</label>
+                    <textarea id="appointmentNotes" class="form-textarea" 
+                             placeholder="Bạn có yêu cầu đặc biệt nào không?"></textarea>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="cancel-button" onclick="hideBookingForm()">
+                        ❌ Hủy
+                    </button>
+                    <button type="submit" class="submit-button" id="submitButton">
+                        ✅ Đặt lịch
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="{{ input_placeholder }}"
+                onkeypress="handleKeyPress(event)"
+            >
+            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                {{ send_button_text }}
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = null;
+        const API_URL = '{{ api_url }}';
+        
+        // Check API connection on page load
+        async function checkApiConnection() {
+            try {
+                const response = await fetch(`{{ api_url }}/health`);
+                if (response.ok) {
+                    document.getElementById('statusText').textContent = 'Đã kết nối';
+                    document.getElementById('statusIndicator').className = 'status-indicator status-online';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                document.getElementById('statusText').textContent = 'Mất kết nối';
+                document.getElementById('statusIndicator').className = 'status-indicator status-offline';
+            }
+        }
+        
+        // Handle option button clicks
+        function selectOption(message) {
+            // Hide option buttons after selection
+            const chatOptions = document.getElementById('chatOptions');
+            if (chatOptions) {
+                chatOptions.style.display = 'none';
+            }
+            
+            // Disable all option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            optionButtons.forEach(button => {
+                button.disabled = true;
+            });
+            
+            // Add user message and send to API
+            addMessage(message, true);
+            processMessage(message);
+        }
+        
+        // Reset conversation to show main menu
+        function resetConversation() {
+            const chatOptions = document.getElementById('chatOptions');
+            if (chatOptions) {
+                chatOptions.style.display = 'flex';
+            }
+            
+            // Re-enable all option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            optionButtons.forEach(button => {
+                button.disabled = false;
+            });
+            
+            // Add a system message
+            addMessage('Đã trở về menu chính. Vui lòng chọn một tùy chọn bên dưới:', false);
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function addMessage(message, isUser, showResetButton = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            // Handle line breaks in bot messages
+            if (!isUser && message.includes('\n')) {
+                messageDiv.innerHTML = message.replace(/\n/g, '<br>');
+            } else {
+                messageDiv.textContent = message;
+            }
+            
+            // Add reset button to bot messages (except welcome)
+            if (!isUser && showResetButton && !message.includes('menu chính')) {
+                const resetBtn = document.createElement('button');
+                resetBtn.className = 'reset-button';
+                resetBtn.textContent = '🏠 Trở về menu chính';
+                resetBtn.onclick = resetConversation;
+                messageDiv.appendChild(resetBtn);
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        // Process message and send to API
+        async function processMessage(message) {
+            const sendButton = document.getElementById('sendButton');
+            
+            // Disable send button during processing
+            sendButton.disabled = true;
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_id: conversationId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                
+                // Hide typing indicator and add bot response
+                hideTypingIndicator();
+                addMessage(data.response, false, true);
+                
+                // Update connection status
+                document.getElementById('statusText').textContent = 'Đã kết nối';
+                document.getElementById('statusIndicator').className = 'status-indicator status-online';
+                
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.', false);
+                console.error('Error:', error);
+                
+                // Update connection status
+                document.getElementById('statusText').textContent = 'Lỗi kết nối';
+                document.getElementById('statusIndicator').className = 'status-indicator status-offline';
+            } finally {
+                sendButton.disabled = false;
+                document.getElementById('chatInput').focus();
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            
+            // Clear input
+            input.value = '';
+            
+            // Process the message
+            await processMessage(message);
+        }
+        
+        // Booking Form Functions
+        function showBookingForm() {
+            // Hide chat options
+            const chatOptions = document.getElementById('chatOptions');
+            if (chatOptions) {
+                chatOptions.style.display = 'none';
+            }
+            
+            // Disable option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            optionButtons.forEach(button => {
+                button.disabled = true;
+            });
+            
+            // Show booking form
+            const bookingForm = document.getElementById('bookingForm');
+            bookingForm.classList.add('show');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+            
+            // Focus on first input
+            document.getElementById('customerName').focus();
+            
+            // Add message about opening form
+            addMessage('📝 Vui lòng điền thông tin đặt lịch bên dưới:', false);
+        }
+        
+        function hideBookingForm() {
+            // Hide booking form
+            const bookingForm = document.getElementById('bookingForm');
+            bookingForm.classList.remove('show');
+            
+            // Reset form
+            document.getElementById('appointmentForm').reset();
+            clearFormErrors();
+            
+            // Reset time slot dropdown
+            const timeSlotSelect = document.getElementById('timeSlotSelect');
+            timeSlotSelect.innerHTML = '<option value="">-- Chọn ngày trước --</option>';
+            timeSlotSelect.disabled = true;
+            
+            // Show option buttons again
+            resetConversation();
+        }
+        
+        async function loadTimeSlots() {
+            const dateInput = document.getElementById('appointmentDate');
+            const timeSlotSelect = document.getElementById('timeSlotSelect');
+            const loading = document.getElementById('timeSlotsLoading');
+            const dateInfo = document.getElementById('dateInfo');
+            
+            if (!dateInput.value) {
+                timeSlotSelect.innerHTML = '<option value="">-- Chọn ngày trước --</option>';
+                timeSlotSelect.disabled = true;
+                dateInfo.style.display = 'none';
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            timeSlotSelect.disabled = true;
+            dateInfo.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/timeslots/${dateInput.value}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load time slots');
+                }
+                
+                const timeSlots = await response.json();
+                
+                // Clear existing options
+                timeSlotSelect.innerHTML = '';
+                
+                if (timeSlots.length === 0) {
+                    timeSlotSelect.innerHTML = '<option value="">Không có lịch trống</option>';
+                } else {
+                    timeSlotSelect.innerHTML = '<option value="">-- Chọn giờ --</option>';
+                    timeSlots.forEach(slot => {
+                        if (slot.is_available) {
+                            const option = document.createElement('option');
+                            option.value = slot.id;
+                            option.textContent = `${slot.start_time} - ${slot.end_time}`;
+                            timeSlotSelect.appendChild(option);
+                        }
+                    });
+                }
+                
+                timeSlotSelect.disabled = false;
+                
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+                timeSlotSelect.innerHTML = '<option value="">Lỗi tải lịch trống</option>';
+                addMessage('❌ Không thể tải lịch trống. Vui lòng thử lại.', false);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function validateForm() {
+            let isValid = true;
+            clearFormErrors();
+            
+            // Validate name
+            const name = document.getElementById('customerName').value.trim();
+            if (!name) {
+                showFormError('nameError');
+                isValid = false;
+            }
+            
+            // Validate phone
+            const phone = document.getElementById('customerPhone').value.trim();
+            const phonePattern = /^[0-9]{10,11}$/;
+            if (!phone || !phonePattern.test(phone)) {
+                showFormError('phoneError');
+                isValid = false;
+            }
+            
+            // Validate email (optional)
+            const email = document.getElementById('customerEmail').value.trim();
+            if (email) {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(email)) {
+                    showFormError('emailError');
+                    isValid = false;
+                }
+            }
+            
+            // Validate service
+            const service = document.getElementById('serviceSelect').value;
+            if (!service) {
+                showFormError('serviceError');
+                isValid = false;
+            }
+            
+            // Validate date
+            const date = document.getElementById('appointmentDate').value;
+            if (!date) {
+                showFormError('dateError');
+                isValid = false;
+            }
+            
+            // Validate time slot
+            const timeSlot = document.getElementById('timeSlotSelect').value;
+            if (!timeSlot) {
+                showFormError('timeError');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        function showFormError(errorId) {
+            document.getElementById(errorId).style.display = 'block';
+        }
+        
+        function clearFormErrors() {
+            const errors = document.querySelectorAll('.form-error');
+            errors.forEach(error => {
+                error.style.display = 'none';
+            });
+        }
+        
+        async function submitBookingForm(event) {
+            event.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+            submitButton.textContent = '⏳ Đang đặt lịch...';
+            
+            const formData = {
+                customer_name: document.getElementById('customerName').value.trim(),
+                customer_phone: document.getElementById('customerPhone').value.trim(),
+                customer_email: document.getElementById('customerEmail').value.trim() || null,
+                service_id: parseInt(document.getElementById('serviceSelect').value),
+                time_slot_id: parseInt(document.getElementById('timeSlotSelect').value),
+                notes: document.getElementById('appointmentNotes').value.trim() || null
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/book-appointment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Booking failed');
+                }
+                
+                const result = await response.json();
+                
+                // Success message
+                const serviceName = document.getElementById('serviceSelect').selectedOptions[0].textContent;
+                const timeSlot = document.getElementById('timeSlotSelect').selectedOptions[0].textContent;
+                const appointmentDate = document.getElementById('appointmentDate').value;
+                
+                addMessage(`✅ Đặt lịch thành công!\\n\\n` +
+                          `📋 Thông tin đặt lịch:\\n` +
+                          `👤 Tên: ${formData.customer_name}\\n` +
+                          `📞 SĐT: ${formData.customer_phone}\\n` +
+                          `💅 Dịch vụ: ${serviceName}\\n` +
+                          `📅 Ngày: ${appointmentDate}\\n` +
+                          `⏰ Giờ: ${timeSlot}\\n\\n` +
+                          `🆔 Mã đặt lịch: ${result.appointment_id}\\n\\n` +
+                          `Cảm ơn bạn đã tin tưởng dịch vụ của chúng tôi! 💕`, false, true);
+                
+                // Hide form
+                hideBookingForm();
+                
+            } catch (error) {
+                console.error('Booking error:', error);
+                addMessage(`❌ Không thể đặt lịch: ${error.message}\\nVui lòng thử lại hoặc liên hệ trực tiếp.`, false);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = '✅ Đặt lịch';
+            }
+        }
+        
+        // Add form submit handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('appointmentForm');
+            if (form) {
+                form.addEventListener('submit', submitBookingForm);
+            }
+        });
+        
+        // Focus on input when page loads and check API connection
+        window.onload = function() {
+            document.getElementById('chatInput').focus();
+            checkApiConnection();
+        };
+    </script>
+</body>
+</html>
